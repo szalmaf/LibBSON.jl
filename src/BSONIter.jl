@@ -173,11 +173,12 @@ function value(bsonIter::BSONIter)
             bsonIter._wrap_
             )
     elseif ty == BSON_TYPE_DATE_TIME
-        return ccall(
+        val = ccall(
             (:bson_iter_date_time, libbson),
             Int64, (Ptr{Uint8}, ),
             bsonIter._wrap_
             )
+        return val/1000. |> Dates.unix2datetime
     elseif ty == BSON_TYPE_BOOL
         return ccall(
             (:bson_iter_bool, libbson),
