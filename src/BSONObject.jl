@@ -172,6 +172,9 @@ function append(bsonObject::BSONObject, key::String, val::String)
         sizeof(valUTF8)
         ) || error("libBSON: overflow")
 end
+function append(bsonObject::BSONObject, key::String, val::Void)
+    append_null(bsonObject, key)
+end
 function append(bsonObject::BSONObject, key::String, val::Nothing)
     append_null(bsonObject, key)
 end
