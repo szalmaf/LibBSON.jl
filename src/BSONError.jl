@@ -18,7 +18,7 @@ convert(::Type{String}, bsonError::BSONError) = begin
     uint32s = reinterpret(Uint32, bsonError._wrap_)
     domain = uint32s[1]
     code = uint32s[2]
-    return bytestring(convert(Ptr{Uint8}, bsonError._wrap_[9:end]))
+    return bytestring(bsonError._wrap_[9:end])
 end
 export convert
 
