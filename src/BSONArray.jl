@@ -168,6 +168,10 @@ function append(bsonArray::BSONArray, val::Symbol)
         append(bsonArray, string(val))
     end
 end
+function append(bsonArray::BSONArray, val::Tuple{String, Any})
+    d = Dict{String, Any}(val[1]=>val[2])
+    append(bsonArray, d)
+end
 function append(bsonArray::BSONArray, val::Dict)
     keyCStr = bytestring(string(length(bsonArray)))
     childBuffer = Array(Uint8, 128)
