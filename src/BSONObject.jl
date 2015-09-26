@@ -208,7 +208,11 @@ function append(bsonObject::BSONObject, key::String, val::Symbol)
         append(bsonObject, key, string(val))
     end
 end
-function append(bsonObject::BSONObject, key::String, val::Dict)
+function append(bsonObject::BSONObject, key::String, val::Tuple{String, Any})
+    d = Dict{String, Any}(val[1]=>val[2])
+    append(bsonObject, key, d)
+end
+function append(bsonObject::BSONObject, key::String, val::Dict())
     keyCStr = bytestring(key)
     childBuffer = Array(Uint8, 128)
     ccall(
