@@ -20,6 +20,15 @@ type BSONObject
         return bsonObject
     end
 
+    BSONObject(arr::Array{Tuple{ASCIIString, Any}, 1}) = begin
+        bsonObject = BSONObject()
+        for (k, v) in arr
+            append(bsonObject, k, v)
+        end
+        return bsonObject
+    end
+
+
     BSONObject(jsonString::String) = begin
         jsonCStr = bytestring(jsonString)
         bsonError = BSONError()
