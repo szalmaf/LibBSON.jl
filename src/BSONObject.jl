@@ -145,6 +145,11 @@ function append(bsonObject::BSONObject, key::String, val::Union(Int64, Uint64))
         val
         ) || error("libBSON: overflow")
 end
+
+function append(bsonObject::BSONObject, key::String, val::Date)
+    append(bsonObject, key, DateTime(val))
+end
+
 function append(bsonObject::BSONObject, key::String, val::DateTime)
     keyCStr = bytestring(key)
     val_utc_js = Dates.datetime2unix(val)*1000 |> Int64
