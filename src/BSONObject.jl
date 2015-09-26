@@ -20,7 +20,7 @@ type BSONObject
         return bsonObject
     end
 
-    BSONObject{T <: Tuple{ASCIIString, Any}}(arr::Array{T, 1}) = begin
+    BSONObject{T <: Tuple{AbstractString, Any}}(arr::Array{T, 1}) = begin
         bsonObject = BSONObject()
         for (k, v) in arr
             append(bsonObject, k, v)
