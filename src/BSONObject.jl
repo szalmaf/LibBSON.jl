@@ -28,6 +28,11 @@ type BSONObject
         return bsonObject
     end
 
+    BSONObject(tup::Tuple{AbstractString, Any}) = begin
+        bsonObject = BSONObject()
+        append(bsonObject, tup[1], tup[2])
+        return bsonObject
+    end
 
     BSONObject(jsonString::String) = begin
         jsonCStr = bytestring(jsonString)
