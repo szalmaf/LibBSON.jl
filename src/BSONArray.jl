@@ -108,7 +108,7 @@ function append(bsonArray::BSONArray, val::BSONArray)
         childBuffer
         ) || error("bson_append_array_end: failure")
 end
-function append(bsonArray::BSONArray, val::Union(Int8, Uint8, Int16, Uint16, Int32, Uint32))
+function append(bsonArray::BSONArray, val::Union{Int8, Uint8, Int16, Uint16, Int32, Uint32})
     keyCStr = bytestring(string(length(bsonArray)))
     ccall(
         (:bson_append_int32, libbson),
@@ -119,7 +119,7 @@ function append(bsonArray::BSONArray, val::Union(Int8, Uint8, Int16, Uint16, Int
         val
         ) || error("libBSON: overflow")
 end
-function append(bsonArray::BSONArray, val::Union(Int64, Uint64))
+function append(bsonArray::BSONArray, val::Union{Int64, Uint64})
     keyCStr = bytestring(string(length(bsonArray)))
     ccall(
         (:bson_append_int64, libbson),
