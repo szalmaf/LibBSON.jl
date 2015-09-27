@@ -35,7 +35,7 @@ type BSONArray
 end
 export BSONArray
 
-function convert(::Type{String}, bsonArray::BSONArray)
+function convert(::Type{AbstractString}, bsonArray::BSONArray)
     cstr = ccall(
         (:bson_array_as_json, libbson),
         Ptr{Uint8}, (Ptr{Void}, Ptr{Uint8}),
@@ -52,9 +52,9 @@ function convert(::Type{String}, bsonArray::BSONArray)
 end
 export convert
 
-string(bsonArray::BSONArray) = convert(String, bsonArray)
+string(bsonArray::BSONArray) = convert(AbstractString, bsonArray)
 
-show(io::IO, bsonArray::BSONArray) = print(io, "BSONArray($(convert(String, bsonArray)))")
+show(io::IO, bsonArray::BSONArray) = print(io, "BSONArray($(convert(AbstractString, bsonArray)))")
 export show
 
 length(bsonArray::BSONArray) =
@@ -141,7 +141,7 @@ function append(bsonArray::BSONArray, val::BSONOID)
         val._wrap_
         ) || error("libBSON: overflow")
 end
-function append(bsonArray::BSONArray, val::String)
+function append(bsonArray::BSONArray, val::AbstractString)
     keyCStr = bytestring(string(length(bsonArray)))
     valUTF8 = utf8(val)
     ccall(
@@ -168,8 +168,8 @@ function append(bsonArray::BSONArray, val::Symbol)
         append(bsonArray, string(val))
     end
 end
-function append(bsonArray::BSONArray, val::Tuple{String, Any})
-    d = Dict{String, Any}(val[1]=>val[2])
+function append(bsonArray::BSONArray, val::Tuple{AbstractString, Any})
+    d = Dict{AbstractString, Any}(val[1]=>val[2])
     append(bsonArray, d)
 end
 function append(bsonArray::BSONArray, val::Dict)
