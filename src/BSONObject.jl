@@ -34,7 +34,7 @@ type BSONObject
         return bsonObject
     end
 
-    BSONObject(jsonString::String) = begin
+    BSONObject(jsonString::AbstractString) = begin
         jsonCStr = bytestring(jsonString)
         bsonError = BSONError()
         _wrap_ = ccall(
@@ -65,7 +65,7 @@ type BSONObject
 end
 export BSONObject
 
-function convert(::Type{String}, bsonObject::BSONObject)
+function convert(::Type{AbstractString}, bsonObject::BSONObject)
     cstr = ccall(
         (:bson_as_json, libbson),
         Ptr{Uint8}, (Ptr{Void}, Ptr{Uint8}),
@@ -82,9 +82,9 @@ function convert(::Type{String}, bsonObject::BSONObject)
 end
 export convert
 
-string(bsonObject::BSONObject) = convert(String, bsonObject)
+string(bsonObject::BSONObject) = convert(AbstractString, bsonObject)
 
-show(io::IO, bsonObject::BSONObject) = print(io, "BSONObject($(convert(String, bsonObject)))")
+show(io::IO, bsonObject::BSONObject) = print(io, "BSONObject($(convert(AbstractString, bsonObject)))")
 export show
 
 length(bsonObject::BSONObject) =
@@ -95,7 +95,7 @@ length(bsonObject::BSONObject) =
         )
 export length
 
-function append(bsonObject::BSONObject, key::String, val::Bool)
+function append(bsonObject::BSONObject, key::AbstractString, val::Bool)
     keyCStr = bytestring(key)
     ccall(
         (:bson_append_bool, libbson),
@@ -106,7 +106,7 @@ function append(bsonObject::BSONObject, key::String, val::Bool)
         val
         ) || error("libBSON: overflow")
 end
-function append(bsonObject::BSONObject, key::String, val::Real)
+function append(bsonObject::BSONObject, key::AbstractString, val::Real)
     keyCStr = bytestring(key)
     ccall(
         (:bson_append_double, libbson),
@@ -117,7 +117,7 @@ function append(bsonObject::BSONObject, key::String, val::Real)
         val
         ) || error("libBSON: overflow")
 end
-function append(bsonObject::BSONObject, key::String, val::BSONObject)
+function append(bsonObject::BSONObject, key::AbstractString, val::BSONObject)
     keyCStr = bytestring(key)
     ccall(
         (:bson_append_document, libbson),
@@ -128,7 +128,7 @@ function append(bsonObject::BSONObject, key::String, val::BSONObject)
         val._wrap_
         ) || error("libBSON: overflow")
 end
-function append(bsonObject::BSONObject, key::String, val::Union(Int8, Uint8, Int16, Uint16, Int32, Uint32))
+function append(bsonObject::BSONObject, key::AbstractString, val::Union(Int8, Uint8, Int16, Uint16, Int32, Uint32))
     keyCStr = bytestring(key)
     ccall(
         (:bson_append_int32, libbson),
@@ -139,7 +139,7 @@ function append(bsonObject::BSONObject, key::String, val::Union(Int8, Uint8, Int
         val
         ) || error("libBSON: overflow")
 end
-function append(bsonObject::BSONObject, key::String, val::Union(Int64, Uint64))
+function append(bsonObject::BSONObject, key::AbstractString, val::Union(Int64, Uint64))
     keyCStr = bytestring(key)
     ccall(
         (:bson_append_int64, libbson),
@@ -151,11 +151,11 @@ function append(bsonObject::BSONObject, key::String, val::Union(Int64, Uint64))
         ) || error("libBSON: overflow")
 end
 
-function append(bsonObject::BSONObject, key::String, val::Date)
+function append(bsonObject::BSONObject, key::AbstractString, val::Date)
     append(bsonObject, key, DateTime(val))
 end
 
-function append(bsonObject::BSONObject, key::String, val::DateTime)
+function append(bsonObject::BSONObject, key::AbstractString, val::DateTime)
     keyCStr = bytestring(key)
     val_utc_js = Dates.datetime2unix(val)*1000 |> Int64
     ccall(
@@ -167,7 +167,7 @@ function append(bsonObject::BSONObject, key::String, val::DateTime)
         val_utc_js
         ) || error("libBSON: overflow")
 end
-function append(bsonObject::BSONObject, key::String, val::BSONOID)
+function append(bsonObject::BSONObject, key::AbstractString, val::BSONOID)
     keyCStr = bytestring(key)
     ccall(
         (:bson_append_oid, libbson),
@@ -178,7 +178,7 @@ function append(bsonObject::BSONObject, key::String, val::BSONOID)
         val._wrap_
         ) || error("libBSON: overflow")
 end
-function append(bsonObject::BSONObject, key::String, val::String)
+function append(bsonObject::BSONObject, key::AbstractString, val::AbstractString)
     keyCStr = bytestring(key)
     valUTF8 = utf8(val)
     ccall(
@@ -191,13 +191,13 @@ function append(bsonObject::BSONObject, key::String, val::String)
         sizeof(valUTF8)
         ) || error("libBSON: overflow")
 end
-function append(bsonObject::BSONObject, key::String, val::Type)
+function append(bsonObject::BSONObject, key::AbstractString, val::Type)
     append_null(bsonObject, key)
 end
-function append(bsonObject::BSONObject, key::String, val::Nothing)
+function append(bsonObject::BSONObject, key::AbstractString, val::Nothing)
     append_null(bsonObject, key)
 end
-function append(bsonObject::BSONObject, key::String, val::Symbol)
+function append(bsonObject::BSONObject, key::AbstractString, val::Symbol)
     if val == :null
         append_null(bsonObject, key)
     elseif val == :minkey
@@ -208,11 +208,11 @@ function append(bsonObject::BSONObject, key::String, val::Symbol)
         append(bsonObject, key, string(val))
     end
 end
-function append(bsonObject::BSONObject, key::String, val::Tuple{String, Any})
-    d = Dict{String, Any}(val[1]=>val[2])
+function append(bsonObject::BSONObject, key::AbstractString, val::Tuple{AbstractString, Any})
+    d = Dict{AbstractString, Any}(val[1]=>val[2])
     append(bsonObject, key, d)
 end
-function append(bsonObject::BSONObject, key::String, val::Dict)
+function append(bsonObject::BSONObject, key::AbstractString, val::Dict)
     keyCStr = bytestring(key)
     childBuffer = Array(Uint8, 128)
     ccall(
@@ -234,7 +234,7 @@ function append(bsonObject::BSONObject, key::String, val::Dict)
         childBuffer
         ) || error("bson_append_document_end: failure")
 end
-function append(bsonObject::BSONObject, key::String, val::Vector)
+function append(bsonObject::BSONObject, key::AbstractString, val::Vector)
     keyCStr = bytestring(key)
     childBuffer = Array(Uint8, 128)
     ccall(
@@ -258,7 +258,7 @@ function append(bsonObject::BSONObject, key::String, val::Vector)
 end
 export append
 
-function append_null(bsonObject::BSONObject, key::String)
+function append_null(bsonObject::BSONObject, key::AbstractString)
     keyCStr = bytestring(key)
     ccall(
         (:bson_append_null, libbson),
@@ -270,7 +270,7 @@ function append_null(bsonObject::BSONObject, key::String)
 end
 export append_null
 
-function append_minkey(bsonObject::BSONObject, key::String)
+function append_minkey(bsonObject::BSONObject, key::AbstractString)
     keyCStr = bytestring(key)
     ccall(
         (:bson_append_minkey, libbson),
@@ -282,7 +282,7 @@ function append_minkey(bsonObject::BSONObject, key::String)
 end
 export append_minkey
 
-function append_maxkey(bsonObject::BSONObject, key::String)
+function append_maxkey(bsonObject::BSONObject, key::AbstractString)
     keyCStr = bytestring(key)
     ccall(
         (:bson_append_maxkey, libbson),
