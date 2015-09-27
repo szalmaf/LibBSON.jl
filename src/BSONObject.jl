@@ -128,7 +128,7 @@ function append(bsonObject::BSONObject, key::AbstractString, val::BSONObject)
         val._wrap_
         ) || error("libBSON: overflow")
 end
-function append(bsonObject::BSONObject, key::AbstractString, val::Union(Int8, Uint8, Int16, Uint16, Int32, Uint32))
+function append(bsonObject::BSONObject, key::AbstractString, val::Union{Int8, Uint8, Int16, Uint16, Int32, Uint32})
     keyCStr = bytestring(key)
     ccall(
         (:bson_append_int32, libbson),
@@ -139,7 +139,7 @@ function append(bsonObject::BSONObject, key::AbstractString, val::Union(Int8, Ui
         val
         ) || error("libBSON: overflow")
 end
-function append(bsonObject::BSONObject, key::AbstractString, val::Union(Int64, Uint64))
+function append(bsonObject::BSONObject, key::AbstractString, val::Union{Int64, Uint64})
     keyCStr = bytestring(key)
     ccall(
         (:bson_append_int64, libbson),
