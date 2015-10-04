@@ -65,7 +65,8 @@ type BSONObject
         bsonObject = BSONObject()
         ccall(
             (:bson_copy_to, libbson),
-            Void, (_wrap_, bsonObject._wrap_)
+            Void, (Ptr{Void}, Ptr{Void}),
+            _wrap_, bsonObject._wrap_
         )
         return bsonObject
     end
