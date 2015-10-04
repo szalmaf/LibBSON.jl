@@ -61,7 +61,14 @@ type BSONObject
         new(b, (_ref_, b))
     end
 
-    BSONObject(_wrap_::Ptr{Void}, _owner_::Any) = new(_wrap_, _owner_)
+    BSONObject(_wrap_::Ptr{Void}, _owner_::Any) = begin
+        bsonObject = BSONObject()
+        ccall(
+            (:bson_copy_to, libbson),
+            Void, (_wrap_, bsonObject._wrap_)
+        )
+        return bsonObject
+    end
 end
 export BSONObject
 
