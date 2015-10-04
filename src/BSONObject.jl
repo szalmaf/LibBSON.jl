@@ -218,7 +218,7 @@ function append(bsonObject::BSONObject, key::AbstractString, val::Symbol)
         append(bsonObject, key, string(val))
     end
 end
-function append{T <: Tuple{AbstractString, Any}}(bsonObject::BSONObject, key::AbstractString, arr::Array{T, 1})
+function append{T <: Tuple{AbstractString, Any}}(bsonObject::BSONObject, key::AbstractString, val::Array{T, 1})
     bsonObjectVal = BSONObject(val)
     append(bsonObject, key, bsonObjectVal)
 end
