@@ -219,14 +219,10 @@ function append(bsonObject::BSONObject, key::AbstractString, val::Symbol)
     end
 end
 function append{T <: Tuple{AbstractString, Any}}(bsonObject::BSONObject, key::AbstractString, val::Array{T, 1})
-    bsonObjectVal = BSONObject(val)
-    append(bsonObject, key, bsonObjectVal)
+    append(bsonObject, key, BSONObject(val))
 end
 function append(bsonObject::BSONObject, key::AbstractString, val::Tuple{Any, Any})
-    append(bsonObject, key, val)
-end
-function append(bsonObject::BSONObject, key::Tuple{AbstractString, Any}, val::Tuple{AbstractString, Any})
-    append(bsonObject, key, val)
+    append(bsonObject, key, BSONObject(val))
 end
 function append(bsonObject::BSONObject, key::AbstractString, val::Dict)
     keyCStr = bytestring(key)
