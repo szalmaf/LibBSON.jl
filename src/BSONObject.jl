@@ -30,7 +30,9 @@ type BSONObject
 
     BSONObject(tup::Tuple{AbstractString, Any}) = begin
         bsonObject = BSONObject()
-        append(bsonObject, tup[1], tup[2])
+        key = tup[1]
+        val = tup[2]
+        append(bsonObject, key, val)
         return bsonObject
     end
 
@@ -216,9 +218,15 @@ function append(bsonObject::BSONObject, key::AbstractString, val::Symbol)
         append(bsonObject, key, string(val))
     end
 end
-function append(bsonObject::BSONObject, key::AbstractString, val::Tuple{AbstractString, Any})
-    d = Dict{AbstractString, Any}(val[1]=>val[2])
-    append(bsonObject, key, d)
+function append{T <: Tuple{AbstractString, Any}}(bsonObject::BSONObject, key::AbstractString, arr::Array{T, 1})
+    bsonObjectVal = BSONObject(val)
+    append(bsonObject, key, bsonObjectVal)
+end
+function append(bsonObject::BSONObject, key::AbstractString, val::Tuple{Any, Any})
+    append(bsonObject, key, val)
+end
+function append(bsonObject::BSONObject, key::Tuple{AbstractString, Any}, val::Tuple{AbstractString, Any})
+    append(bsonObject, key, val)
 end
 function append(bsonObject::BSONObject, key::AbstractString, val::Dict)
     keyCStr = bytestring(key)
