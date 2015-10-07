@@ -63,10 +63,10 @@ type BSONObject
         new(b, (_ref_, b))
     end
 
-    # Make a deep copy of a BSONObject using :bson_copy_to
+    # Make a deep copy of a BSONObject using :bson_copy_to.
     # This deep copy is needed especially when bson is used
     # along with current (2015-10-05) pzion/Mongo.jl
-    # when find construct a bson to avoid memory leak!!!
+    # when find constructs a bson, to avoid memory leak!!!
     BSONObject(_wrap_::Ptr{Void}, _owner_::Any) = begin
         bsonObject = BSONObject()
         ccall(
