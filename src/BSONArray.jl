@@ -35,7 +35,6 @@ type BSONArray
 end
 export BSONArray
 
-
 if Base.VERSION > v"0.5.0-"
 Base.iteratoreltype(::Type{BSONArray}) = Base.EltypeUnknown()
 end
@@ -197,6 +196,10 @@ end
 function append(bsonArray::BSONArray, val::Associative)
     keyCStr = string(length(bsonArray))
     childBuffer = Array{UInt8}(128)
+function append(bsonArray::BSONArray, val::Tuple{AbstractString, Any})
+    d = Dict{AbstractString, Any}(val[1]=>val[2])
+    append(bsonArray, d)
+end
     ccall(
         (:bson_append_document_begin, libbson),
         Bool, (Ptr{Void}, Ptr{UInt8}, Cint, Ptr{Void}),

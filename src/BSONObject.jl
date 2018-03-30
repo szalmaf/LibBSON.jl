@@ -33,6 +33,22 @@ type BSONObject
         return bsonObject
     end
 
+    BSONObject{T <: Tuple{AbstractString, Any}}(arr::Array{T, 1}) = begin
+        bsonObject = BSONObject()
+        for (k, v) in arr
+            append(bsonObject, k, v)
+        end
+        return bsonObject
+    end
+
+    BSONObject(tup::Tuple{AbstractString, Any}) = begin
+        bsonObject = BSONObject()
+        key = tup[1]
+        val = tup[2]
+        append(bsonObject, key, val)
+        return bsonObject
+    end
+
     BSONObject(jsonString::AbstractString) = begin
         jsonCStr = string(jsonString)
         bsonError = BSONError()
@@ -60,7 +76,19 @@ type BSONObject
         new(b, (_ref_, buffer))
     end
 
-    BSONObject(_wrap_::Ptr{Void}, _owner_::Any) = new(_wrap_, _owner_)
+    # Make a deep copy of a BSONObject using :bson_copy_to.
+    # This deep copy is needed especially when bson is used
+    # along with current (2015-10-05) pzion/Mongo.jl
+    # when find constructs a bson, to avoid memory leak!!!
+    BSONObject(_wrap_::Ptr{Void}, _owner_::Any) = begin
+        bsonObject = BSONObject()
+        ccall(
+            (:bson_copy_to, libbson),
+            Void, (Ptr{Void}, Ptr{Void}),
+            _wrap_, bsonObject._wrap_
+        )
+        return bsonObject
+    end
 end
 export BSONObject
 
@@ -190,7 +218,10 @@ function append(bsonObject::BSONObject, key::AbstractString, val::AbstractString
         sizeof(valUTF8)
         ) || error("libBSON: overflow")
 end
-function append(bsonObject::BSONObject, key::AbstractString, val::Void)
+function append(bsonObject::BSONObject, key::AbstractString, val::Type)
+    append_null(bsonObject, key)
+end
+function append(bsonObject::BSONObject, key::AbstractString, val::Nothing)
     append_null(bsonObject, key)
 end
 function append(bsonObject::BSONObject, key::AbstractString, val::Symbol)
@@ -203,6 +234,12 @@ function append(bsonObject::BSONObject, key::AbstractString, val::Symbol)
     else
         append(bsonObject, key, string(val))
     end
+end
+function append{T <: Tuple{AbstractString, Any}}(bsonObject::BSONObject, key::AbstractString, val::Array{T, 1})
+    append(bsonObject, key, BSONObject(val))
+end
+function append(bsonObject::BSONObject, key::AbstractString, val::Tuple{Any, Any})
+    append(bsonObject, key, BSONObject(val))
 end
 function append(bsonObject::BSONObject, key::AbstractString, val::Associative)
     keyCStr = string(key)

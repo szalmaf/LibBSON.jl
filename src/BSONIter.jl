@@ -172,6 +172,13 @@ function value(bsonIter::BSONIter)
             Int64, (Ptr{UInt8}, ),
             bsonIter._wrap_
             )
+    elseif ty == BSON_TYPE_DATE_TIME
+        val = ccall(
+            (:bson_iter_date_time, libbson),
+            Int64, (Ptr{Uint8}, ),
+            bsonIter._wrap_
+            )
+        return val/1000. |> Dates.unix2datetime
     elseif ty == BSON_TYPE_BOOL
         return ccall(
             (:bson_iter_bool, libbson),
@@ -199,14 +206,12 @@ function value(bsonIter::BSONIter)
             C_NULL
             )))
     elseif ty == BSON_TYPE_OID
-        data = Array{UInt8}(12)
         ptr = ccall(
                 (:bson_iter_oid, libbson),
-                Ptr{UInt8}, (Ptr{UInt8},),
+                Ptr{Uint8}, (Ptr{Uint8},),
                 bsonIter._wrap_
                 )
-        unsafe_copy!(pointer(data), ptr, 12)
-        return BSONOID(data)
+        return BSONOID(ptr, bsonIter)
     elseif ty == BSON_TYPE_DOCUMENT
         length = Array{UInt32}(1)
         data = Array{Ptr{UInt8}}(1)

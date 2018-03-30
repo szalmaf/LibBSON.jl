@@ -36,7 +36,15 @@ immutable BSONOID
         new(r, buffer)
     end
 
-    BSONOID(_ref_::Any) = new(pointer(_ref_), _ref_)
+    BSONOID(_wrap_::Ptr{UInt8}, _ref_::Any) = begin
+        buffer = Array(UInt8, 12)
+        ccall((:bson_oid_copy, libbson),
+            Void, (Ptr{UInt8}, Ptr{UInt8}),
+            _wrap_, buffer
+            )
+        r = Compat.unsafe_convert(Ptr{UInt8}, buffer)
+        new(r, buffer)
+    end
 end
 export BSONOID
 
