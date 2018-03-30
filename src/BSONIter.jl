@@ -175,7 +175,7 @@ function value(bsonIter::BSONIter)
     elseif ty == BSON_TYPE_DATE_TIME
         val = ccall(
             (:bson_iter_date_time, libbson),
-            Int64, (Ptr{Uint8}, ),
+            Int64, (Ptr{UInt8}, ),
             bsonIter._wrap_
             )
         return val/1000. |> Dates.unix2datetime
@@ -208,7 +208,7 @@ function value(bsonIter::BSONIter)
     elseif ty == BSON_TYPE_OID
         ptr = ccall(
                 (:bson_iter_oid, libbson),
-                Ptr{Uint8}, (Ptr{Uint8},),
+                Ptr{UInt8}, (Ptr{UInt8},),
                 bsonIter._wrap_
                 )
         return BSONOID(ptr, bsonIter)
