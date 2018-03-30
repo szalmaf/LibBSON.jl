@@ -3,7 +3,7 @@ immutable BSONOID
     _ref_::Any
 
     BSONOID() = begin
-        buffer = Array(UInt8, 12)
+        buffer = Array{UInt8}(12)
         ccall(
             (:bson_oid_init, libbson),
             Void, (Ptr{UInt8}, Ptr{Void}),
@@ -15,7 +15,7 @@ immutable BSONOID
     end
 
     BSONOID(str::AbstractString) = begin
-        cstr = bytestring(str)
+        cstr = string(str)
 
         isValid = ccall(
             (:bson_oid_is_valid, libbson),
@@ -25,7 +25,7 @@ immutable BSONOID
             )
         isValid || error("'" * str * "': not a valid BSONOID string")
 
-        buffer = Array(UInt8, 12)
+        buffer = Array{UInt8}(12)
         ccall(
             (:bson_oid_init_from_string, libbson),
             Void, (Ptr{UInt8}, Ptr{UInt8}),
@@ -33,7 +33,7 @@ immutable BSONOID
             cstr
             )
             r = Compat.unsafe_convert(Ptr{UInt8}, buffer)
-        new(r, r)
+        new(r, buffer)
     end
 
     BSONOID(_wrap_::Ptr{UInt8}, _ref_::Any) = begin
@@ -67,14 +67,14 @@ hash(oid::BSONOID, h::UInt) = hash(
 export hash
 
 function convert(::Type{AbstractString}, oid::BSONOID)
-    cstr = Array(UInt8, 25)
+    cstr = Array{UInt8}(25)
     ccall(
         (:bson_oid_to_string, libbson),
         Void, (Ptr{UInt8}, Ptr{UInt8}),
         oid._wrap_,
         cstr
         )
-    return bytestring(Compat.unsafe_convert(Ptr{UInt8}, cstr))
+    return String(unsafe_string(Compat.unsafe_convert(Ptr{UInt8}, cstr)))
 end
 export convert
 
