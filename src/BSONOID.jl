@@ -37,7 +37,7 @@ immutable BSONOID
     end
 
     BSONOID(_wrap_::Ptr{UInt8}, _ref_::Any) = begin
-        buffer = Array(UInt8, 12)
+        buffer = Array{UInt8}(12)
         ccall((:bson_oid_copy, libbson),
             Void, (Ptr{UInt8}, Ptr{UInt8}),
             _wrap_, buffer
